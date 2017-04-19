@@ -3,20 +3,25 @@ import tensorflow as tf
 from datetime import datetime
 import os
 
-# RESET TF
+# RESET TF GRAPH, just in case
 tf.reset_default_graph()
 
 # LOAD DATA
 train_test_valid_split = [0.7, 0.15, 0.15]
 svhn = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 
-# Parameters
-learning_rate = 1e-2
-training_epochs = 5
+##########################################
+##                                      ##
+##              Parameters              ##
+##                                      ##
+##########################################
+# Training Parameters
+learning_rate = 1e-3
+training_epochs = 2 # <--- should be higher
 batch_size = 100
-total_batches = int(0.2 * svhn.train.num_examples / batch_size)
+total_batches = int(0.1 * svhn.train.num_examples / batch_size) # <-- remove 0.1
 
-# Network Parameters
+# Data Parameters
 n_input = 1024 # SVHN data input (img shape: 32*32)
 n_classes = 10 # total classes (0-9 digits)
 channels = 3
@@ -24,46 +29,26 @@ train_keep_prob = 0.9
 
 ts = datetime.now().strftime('%Y%m%d_%H%M')
 logs_path = "logs/{}/".format(ts)
-#if not os.path.exists(logs_path): os.makedirs(logs_path)
 
 
-# input images
-with tf.name_scope('input'):
-    x = tf.placeholder(tf.float32, shape=[None, n_input, channels], name="x_input")
-    y = tf.placeholder(tf.float32, shape=[None, n_classes], name="y_actual")
-
-keep_prob = tf.placeholder(tf.float32)
-
-weights = {
-    # 5x5 conv, 1 input, 32 outputs
-    'wc1': tf.Variable(tf.random_normal([5, 5, channels, 32]), name="weights_conv1"), # 32
-    # 5x5 conv, 32 inputs, 64 outputs
-    'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64]), name="weights_conv2"), # 16
-    # fully connected, 7*7*64 inputs, 1024 outputs
-    'wd1': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
-    # 1024 inputs, 10 outputs (class prediction)
-    'out': tf.Variable(tf.random_normal([4096, n_classes]), name="weights_output")
-}
-
-biases = {
-    'bc1': tf.Variable(tf.random_normal([32]), name="bias_conv1"),
-    'bc2': tf.Variable(tf.random_normal([64]), name="bias_conv2"),
-    'bd1': tf.Variable(tf.random_normal([4096]), name="bias_fc1"),
-    'out': tf.Variable(tf.random_normal([n_classes]), name="bias_output")
-}
-
-
-# Create some wrappers for simplicity
+##########################################
+##                                      ##
+##            Helper Wrappers           ##
+##                                      ##
+##########################################
+# Conv2D wrapper, with bias and relu activation
 def conv2d(x, W, b, strides=1):
-    # Conv2D wrapper, with bias and relu activation
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
+    x = tf.nn.conv2d(x, W,
+                     strides=[1, strides, strides, 1],
+                     padding='SAME')
     x = tf.nn.bias_add(x, b)
     return tf.nn.relu(x)
 
-
+# MaxPool2D wrapper
 def maxpool2d(x, k=2):
-    # MaxPool2D wrapper
-    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1],
+    return tf.nn.max_pool(x,
+                          ksize=[1, k, k, 1],
+                          strides=[1, k, k, 1],
                           padding='SAME')
 
 
@@ -92,6 +77,39 @@ def conv_net(x, weights, biases, keep_prob):
     return out
 
 
+##########################################
+##                                      ##
+##            Variable Scopes           ##
+##            (for neatness)            ##
+##########################################
+
+with tf.name_scope('input'):
+    x = tf.placeholder(tf.float32, shape=[None, n_input, channels], name="x_input")
+    y = tf.placeholder(tf.float32, shape=[None, n_classes], name="y_actual")
+
+with tf.name_scope('dropout'):
+    keep_prob = tf.placeholder(tf.float32)
+
+with tf.name_scope('weights'):
+    weights = {
+        # 5x5 conv, 1 input, 32 outputs
+        'wc1': tf.Variable(tf.random_normal([5, 5, channels, 32]), name="weights_conv1"), # 32
+        # 5x5 conv, 32 inputs, 64 outputs
+        'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64]), name="weights_conv2"), # 16
+        # fully connected, 7*7*64 inputs, 1024 outputs
+        'wd1': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
+        # 1024 inputs, 10 outputs (class prediction)
+        'out': tf.Variable(tf.random_normal([4096, n_classes]), name="weights_output")
+    }
+
+with tf.name_scope('biases'):
+    biases = {
+        'bc1': tf.Variable(tf.random_normal([32]), name="bias_conv1"),
+        'bc2': tf.Variable(tf.random_normal([64]), name="bias_conv2"),
+        'bd1': tf.Variable(tf.random_normal([4096]), name="bias_fc1"),
+        'out': tf.Variable(tf.random_normal([n_classes]), name="bias_output")
+    }
+
 with tf.name_scope('Model'):
     y_ = conv_net(x, weights, biases, keep_prob)
 
@@ -113,10 +131,17 @@ with tf.name_scope('Optimizer'):
     apply_grads = optimizer.apply_gradients(grads_and_vars=grads)
 
 
+
 # Initializing the variables
 init = tf.global_variables_initializer()
 
-# Record metrics
+
+##########################################
+##                                      ##
+##               Metrics                ##
+##           (for tensorboard)          ##
+##########################################
+# Summaries to visualize loss & accuracy
 tf.summary.scalar("loss", loss)
 tf.summary.scalar("accuracy", accuracy)
 
@@ -132,14 +157,18 @@ for grad, var in grads:
 
 merged_summaries = tf.summary.merge_all()
 
-# Launch the graph
+
+##########################################
+##                                      ##
+##           Launch the graph           ##
+##                                      ##
+##########################################
 with tf.Session() as sess:
     sess.run(init)
-
     summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
     # TRAINING MODEL
-    for epoch in range(training_epochs):
+    for epoch in xrange(training_epochs):
         avg_loss = 0.0
 
         for batch_num in range(total_batches):
@@ -154,7 +183,7 @@ with tf.Session() as sess:
             avg_loss += batch_loss / total_batches
 
         # Display logs per epoch step
-        print "Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(avg_loss)
+        print "Epoch:", '%04d' % (epoch+1), "cost =", "{:.9f}".format(avg_loss)
 
     print "\nOptimization Finished!\n"
 
