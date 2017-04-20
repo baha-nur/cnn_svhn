@@ -15,7 +15,7 @@ svhn = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 # Data information
 n_input = 1024 # SVHN data input (img shape: 32*32)
 n_classes = 10 # total classes (0-9 digits)
-channels = 4
+channels = 3
 
 
 # In[10]:
@@ -29,7 +29,7 @@ channels = 4
 learning_rate = 1e-3
 training_epochs = 4 # <--- should be higher
 batch_size = 100
-total_batches = int(1.0 * svhn.train.num_examples / batch_size)
+total_batches = int(svhn.train.num_examples / batch_size)
 
 
 # Drop out
