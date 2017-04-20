@@ -15,7 +15,7 @@ svhn = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 # Data information
 n_input = 1024 # SVHN data input (img shape: 32*32)
 n_classes = 10 # total classes (0-9 digits)
-channels = 3
+channels = 4
 
 
 # In[10]:
@@ -27,9 +27,9 @@ channels = 3
 ##########################################
 # Training Parameters
 learning_rate = 1e-3
-training_epochs = 3 # <--- should be higher
+training_epochs = 4 # <--- should be higher
 batch_size = 100
-total_batches = int(1 * svhn.train.num_examples / batch_size)
+total_batches = int(svhn.train.num_examples / batch_size)
 
 # Drop out
 train_keep_prob = 0.9
@@ -195,12 +195,15 @@ with tf.Session() as sess:
         print "Epoch:", '%04d' % (epoch+1), "cost =", "{:.9f}".format(avg_loss)
 
     print "\nOptimization Finished!\n"
+
     t_end = time()
-    print "Training took ", t_end - t_start, " seconds. Epochs:", training_epochs, "batch_size:", batch_size, "total_batches:", total_batches
+    training_time = t_end - t_start
+    print "Training took ", training_time, " seconds. Epochs:", training_epochs, "batch_size:", batch_size, "total_batches:", total_batches
+    print training_time / 3600.0, "hours"
 
     # TESTING MODEL ACCURACY AGAINST TEST SET
-    print "Accuracy:", sess.run(accuracy, feed_dict={x: svhn.test.images[:10000],
-                                                     y: svhn.test.labels[:10000],
+    print "Accuracy:", sess.run(accuracy, feed_dict={x: svhn.test.images[:1000],
+                                                     y: svhn.test.labels[:1000],
                                                      keep_prob: 1.0})
 
     print "-"* 70
