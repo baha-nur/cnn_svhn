@@ -26,14 +26,14 @@ channels = 3
 ##                                      ##
 ##########################################
 # Training Parameters
-learning_rate = 1e-2
+learning_rate = 1e-3
 training_epochs = 4 # <--- should be higher
 batch_size = 100
 total_batches = int(svhn.train.num_examples / batch_size)
 
 
 # Drop out
-train_keep_prob = 0.9
+train_keep_prob = 0.5
 
 ts = datetime.now().strftime('%Y%m%d_%H%M')
 logs_path = "logs/{}/".format(ts)
