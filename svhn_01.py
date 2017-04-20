@@ -26,7 +26,7 @@ channels = 3
 ##                                      ##
 ##########################################
 # Training Parameters
-learning_rate = 1e-1
+learning_rate = 1e-2
 training_epochs = 4 # <--- should be higher
 batch_size = 100
 total_batches = int(svhn.train.num_examples / batch_size)
