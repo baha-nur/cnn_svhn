@@ -10,7 +10,9 @@ train_test_valid_split = [1.0, 0.0, 0.0]
 svhn_train = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 svhn_test = gen_input.read_data_sets("data/test_32x32.mat", train_test_valid_split)
 print svhn_train.train.images.shape
+print svhn_train.test.images.shape
 print svhn_test.train.images.shape
+print svhn_test.test.images.shape
 
 
 # ## Model
@@ -30,7 +32,7 @@ channels = 3
 ##########################################
 # Training Parameters
 learning_rate = 1e-3
-training_epochs = 4 # <--- should be higher
+training_epochs = 20 # <--- should be higher
 batch_size = 100
 total_batches = int(svhn_train.train.num_examples / batch_size)
 
