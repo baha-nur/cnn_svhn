@@ -4,6 +4,7 @@ import numpy as np
 import os
 from datetime import datetime
 import tensorflow as tf
+from time import time
 
 train_test_valid_split = [0.7, 0.15, 0.15]
 svhn = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
@@ -170,6 +171,8 @@ merged_summaries = tf.summary.merge_all()
 ##                                      ##
 ##########################################
 with tf.Session() as sess:
+    t_start = time()
+
     sess.run(init)
     summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
@@ -192,6 +195,8 @@ with tf.Session() as sess:
         print "Epoch:", '%04d' % (epoch+1), "cost =", "{:.9f}".format(avg_loss)
 
     print "\nOptimization Finished!\n"
+    t_end = time()
+    print "Training took ", t_end - t_start, " seconds. Epochs:", training_epochs, "batch_size:", batch_size, "total_batches:", total_batches
 
     # TESTING MODEL ACCURACY AGAINST TEST SET
     print "Accuracy:", sess.run(accuracy, feed_dict={x: svhn.test.images[:10000],
@@ -200,4 +205,4 @@ with tf.Session() as sess:
 
     print "-"* 70
     pwd = os.getcwd()+"/"
-    print("Run the following to start tensorboard server:\n"           "tensorboard --logdir=/{}{}".format(pwd, logs_path))
+    print("Run the following to start tensorboard server:\ntensorboard --logdir=/{}{}".format(pwd, logs_path))
