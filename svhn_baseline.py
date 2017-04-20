@@ -15,7 +15,7 @@ svhn = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 # Data information
 n_input = 1024 # SVHN data input (img shape: 32*32)
 n_classes = 10 # total classes (0-9 digits)
-channels = 3
+channels = 4
 
 
 # In[10]:
@@ -27,9 +27,10 @@ channels = 3
 ##########################################
 # Training Parameters
 learning_rate = 1e-3
-training_epochs = 3 # <--- should be higher
+training_epochs = 4 # <--- should be higher
 batch_size = 100
 total_batches = int(1.0 * svhn.train.num_examples / batch_size)
+
 
 # Drop out
 train_keep_prob = 0.9
@@ -195,6 +196,7 @@ with tf.Session() as sess:
         print "Epoch:", '%04d' % (epoch+1), "cost =", "{:.9f}".format(avg_loss)
 
     print "\nOptimization Finished!\n"
+
     t_end = time()
     print "Training took ", t_end - t_start, " seconds. Epochs:", training_epochs, "batch_size:", batch_size, "total_batches:", total_batches
     print (t_end - t_start) / 60.0, " minutes"
