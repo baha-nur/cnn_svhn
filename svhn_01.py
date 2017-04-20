@@ -6,8 +6,11 @@ from datetime import datetime
 import tensorflow as tf
 from time import time
 
-train_test_valid_split = [0.7, 0.15, 0.15]
-svhn = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
+train_test_valid_split = [1.0, 0.0, 0.0]
+svhn_train = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
+svhn_test = gen_input.read_data_sets("data/test_32x32.mat", train_test_valid_split)
+print svhn_train.train.images.shape
+print svhn_test.train.images.shape
 
 
 # ## Model
@@ -29,11 +32,11 @@ channels = 3
 learning_rate = 1e-3
 training_epochs = 4 # <--- should be higher
 batch_size = 100
-total_batches = int(svhn.train.num_examples / batch_size)
+total_batches = int(svhn_train.train.num_examples / batch_size)
 
 
 # Drop out
-train_keep_prob = 0.5
+train_keep_prob = 0.9
 
 ts = datetime.now().strftime('%Y%m%d_%H%M')
 logs_path = "logs/{}/".format(ts)
@@ -182,7 +185,7 @@ with tf.Session() as sess:
         avg_loss = 0.0
 
         for batch_num in range(total_batches):
-            batch_x, batch_y = svhn.train.next_batch(batch_size)
+            batch_x, batch_y = svhn_train.train.next_batch(batch_size)
             _, batch_loss, batch_summary = sess.run([apply_grads, loss, merged_summaries],
                                                     feed_dict={x: batch_x,
                                                                y: batch_y,
@@ -203,8 +206,8 @@ with tf.Session() as sess:
     print (t_end - t_start) / 3600.0, " hours"
 
     # TESTING MODEL ACCURACY AGAINST TEST SET
-    print "Accuracy:", sess.run(accuracy, feed_dict={x: svhn.test.images[:1000],
-                                                     y: svhn.test.labels[:1000],
+    print "Accuracy:", sess.run(accuracy, feed_dict={x: svhn_test.train.images[:1000],
+                                                     y: svhn_test.train.labels[:1000],
                                                      keep_prob: 1.0})
 
     print "-"* 70
