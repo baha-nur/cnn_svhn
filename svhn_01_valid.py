@@ -12,9 +12,8 @@ svhn_train = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_s
 svhn_test = gen_input.read_data_sets("data/test_32x32.mat", train_test_valid_split)
 
 # Normalize data by subtracting mean
-channels_means = svhn_train.images.mean(axis=1).mean(axis=0)
-# svhn_train_images = svhn_train.images - channels_means
-# svhn_test_images = svhn_test.images - channels_means
+channels_means = svhn_train.train.images.mean(axis=1).mean(axis=0)
+
 
 # ## Model
 
