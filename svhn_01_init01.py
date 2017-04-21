@@ -208,7 +208,7 @@ with tf.Session() as sess:
     print (t_end - t_start) / 3600.0, " hours"
 
     # TESTING MODEL ACCURACY AGAINST TEST SET
-    test_subset = svhn_test.train.images[:5000]
+    test_subset = svhn_test.train.images
     test_per_img_ch_means = test_subset.mean(axis=1)
     test_inputs = test_subset - test_per_img_ch_means[:, np.newaxis, :]
     test_labels = svhn_test.train.labels
