@@ -34,7 +34,7 @@ channels = 3
 learning_rate = 1e-3
 training_epochs = 4 # <--- should be higher
 batch_size = 100
-total_batches = int(0.01 * svhn_train.train.num_examples / batch_size)
+total_batches = int(svhn_train.train.num_examples / batch_size)
 
 
 # Drop out
@@ -49,10 +49,10 @@ logs_path = "logs/{}/".format(ts)
 ##                                      ##
 ##########################################
 # Conv2D wrapper, with bias and relu activation
-def conv2d(x, W, b, strides=1):
+def conv2d(x, W, b, strides=1, padding='SAME'):
     x = tf.nn.conv2d(x, W,
                      strides=[1, strides, strides, 1],
-                     padding='VALID')
+                     padding=padding)
     x = tf.nn.bias_add(x, b)
     return tf.nn.relu(x)
 
@@ -69,7 +69,7 @@ def conv_net(x, weights, biases, keep_prob):
     # Reshape input picture
     x = tf.reshape(x, shape=[-1, 32, 32, channels])
 
-    conv1 = conv2d(x, weights['wc1'], biases['bc1'])
+    conv1 = conv2d(x, weights['wc1'], biases['bc1'], padding="VALID")
     conv1 = maxpool2d(conv1, k=2)
     tf.summary.histogram("conv1", conv1)
 

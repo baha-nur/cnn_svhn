@@ -114,7 +114,7 @@ with tf.name_scope('weights'):
         # fully connected, 8*8*64 inputs, 1024 outputs
         'wd1': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
 
-        'wd1': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
+        'wd2': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
         # 1024 inputs, 10 outputs (class prediction)
         'out': tf.Variable(tf.random_normal([4096, n_classes]), name="weights_output")
     }
