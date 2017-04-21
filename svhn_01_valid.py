@@ -11,9 +11,6 @@ train_test_valid_split = [1.0, 0.0, 0.0] # data is already split, so everything 
 svhn_train = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 svhn_test = gen_input.read_data_sets("data/test_32x32.mat", train_test_valid_split)
 
-# Normalize data by subtracting mean
-channels_means = svhn_train.train.images.mean(axis=1).mean(axis=0)
-
 
 # ## Model
 
@@ -187,8 +184,11 @@ with tf.Session() as sess:
 
         for batch_num in range(total_batches):
             batch_x, batch_y = svhn_train.train.next_batch(batch_size)
-            # Normalize by subtracting channel means
-            batch_x = batch_x - channels_means
+
+            # Normalize by subtracting per image, per channel means
+            per_img_ch_means = batch_x.mean(axis=1)
+            batch_x = batch_x - per_img_ch_means[:, np.newaxis, :]
+
             _, batch_loss, batch_summary = sess.run([apply_grads, loss, merged_summaries],
                                                     feed_dict={x: batch_x,
                                                                y: batch_y,
