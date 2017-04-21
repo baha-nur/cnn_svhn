@@ -6,14 +6,15 @@ from datetime import datetime
 import tensorflow as tf
 from time import time
 
-train_test_valid_split = [1.0, 0.0, 0.0]
+
+train_test_valid_split = [1.0, 0.0, 0.0] # data is already split, so everything is in .train
 svhn_train = gen_input.read_data_sets("data/train_32x32.mat", train_test_valid_split)
 svhn_test = gen_input.read_data_sets("data/test_32x32.mat", train_test_valid_split)
-print svhn_train.train.images.shape
-print svhn_train.test.images.shape
-print svhn_test.train.images.shape
-print svhn_test.test.images.shape
 
+# Normalize data by subtracting mean
+channels_means = svhn_train.images.mean(axis=1).mean(axis=0)
+# svhn_train_images = svhn_train.images - channels_means
+# svhn_test_images = svhn_test.images - channels_means
 
 # ## Model
 
@@ -22,8 +23,6 @@ n_input = 1024 # SVHN data input (img shape: 32*32)
 n_classes = 10 # total classes (0-9 digits)
 channels = 3
 
-
-# In[10]:
 
 ##########################################
 ##                                      ##
@@ -69,6 +68,7 @@ def conv_net(x, weights, biases, keep_prob):
     # Reshape input picture
     x = tf.reshape(x, shape=[-1, 32, 32, channels])
 
+    ### Using VALID since edge pixels are meaningless for this dataset
     conv1 = conv2d(x, weights['wc1'], biases['bc1'], padding="VALID")
     conv1 = maxpool2d(conv1, k=2)
     tf.summary.histogram("conv1", conv1)
@@ -188,6 +188,8 @@ with tf.Session() as sess:
 
         for batch_num in range(total_batches):
             batch_x, batch_y = svhn_train.train.next_batch(batch_size)
+            # Normalize by subtracting channel means
+            batch_x = batch_x - channels_means
             _, batch_loss, batch_summary = sess.run([apply_grads, loss, merged_summaries],
                                                     feed_dict={x: batch_x,
                                                                y: batch_y,
@@ -208,8 +210,10 @@ with tf.Session() as sess:
     print (t_end - t_start) / 3600.0, " hours"
 
     # TESTING MODEL ACCURACY AGAINST TEST SET
-    print "Accuracy:", sess.run(accuracy, feed_dict={x: svhn_test.train.images[:1000],
-                                                     y: svhn_test.train.labels[:1000],
+    test_inputs = svhn_test.train.images[:1000] - channels_means
+    test_labels = svhn_test.train.labels[:1000]
+    print "Accuracy:", sess.run(accuracy, feed_dict={x: test_inputs,
+                                                     y: test_labels,
                                                      keep_prob: 1.0})
 
     print "-"* 70

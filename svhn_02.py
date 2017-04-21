@@ -111,19 +111,20 @@ with tf.name_scope('weights'):
         'wc1': tf.Variable(tf.random_normal([5, 5, channels, 64]), name="weights_conv1"), # 32
         # 5x5 conv, 32 inputs, 64 outputs
         'wc2': tf.Variable(tf.random_normal([5, 5, 64, 64]), name="weights_conv2"), # 16
-        # fully connected, 8*8*64 inputs, 1024 outputs
-        'wd1': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
-
-        'wd2': tf.Variable(tf.random_normal([8*8*64, 4096]), name="weights_fc1"), # 8
+        # fully connected, 8*8*64 inputs, 384 outputs
+        'wd1': tf.Variable(tf.random_normal([8*8*64, 384]), name="weights_fc1"), # 8
+        # fully connected, 8*8*64 inputs, 192 outputs
+        'wd2': tf.Variable(tf.random_normal([8*8*64, 192]), name="weights_fc2"), # ??
         # 1024 inputs, 10 outputs (class prediction)
-        'out': tf.Variable(tf.random_normal([4096, n_classes]), name="weights_output")
+        'out': tf.Variable(tf.random_normal([192, n_classes]), name="weights_output")
     }
 
 with tf.name_scope('biases'):
     biases = {
         'bc1': tf.Variable(tf.random_normal([32]), name="bias_conv1"),
         'bc2': tf.Variable(tf.random_normal([64]), name="bias_conv2"),
-        'bd1': tf.Variable(tf.random_normal([4096]), name="bias_fc1"),
+        'bd1': tf.Variable(tf.random_normal([384]), name="bias_fc1"),
+        'bd2': tf.Variable(tf.random_normal([192]), name="bias_fc2"),
         'out': tf.Variable(tf.random_normal([n_classes]), name="bias_output")
     }
 
