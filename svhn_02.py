@@ -29,7 +29,7 @@ channels = 3
 learning_rate = 1e-3
 training_epochs = 4 # <--- should be higher
 batch_size = 100
-total_batches = int(0.01 * svhn_train.train.num_examples / batch_size)
+total_batches = int(svhn_train.train.num_examples / batch_size)
 
 
 # Drop out
@@ -64,8 +64,7 @@ def conv_net(x, weights, biases, keep_prob):
     # Reshape input picture
     x = tf.reshape(x, shape=[-1, 32, 32, channels])
 
-    ### Using VALID since edge pixels are meaningless for this dataset
-    conv1 = conv2d(x, weights['wc1'], biases['bc1'], padding="VALID")
+    conv1 = conv2d(x, weights['wc1'], biases['bc1'])
     conv1 = maxpool2d(conv1, k=2)
     tf.summary.histogram("conv1", conv1)
 
@@ -78,10 +77,12 @@ def conv_net(x, weights, biases, keep_prob):
     fc1 = tf.reshape(conv2, [-1, weights['wd1'].get_shape().as_list()[0]])
     fc1 = tf.add(tf.matmul(fc1, weights['wd1']), biases['bd1'])
     fc1 = tf.nn.relu(fc1)
-    fc1 = tf.nn.dropout(fc1, keep_prob)
 
+    fc2 = tf.add(tf.matmul(fc1, weights['wd2']), biases['bd2'])
+    fc2 = tf.nn.relu(fc2)
+    fc2 = tf.nn.dropout(fc2, keep_prob)
     # Output classes
-    out = tf.add(tf.matmul(fc1, weights['out']), biases['out'])
+    out = tf.add(tf.matmul(fc2, weights['out']), biases['out'])
     return out
 
 
@@ -94,7 +95,7 @@ def conv_net(x, weights, biases, keep_prob):
 # RESET TF GRAPH, just in case
 tf.reset_default_graph()
 
-with tf.name_scope('input'):
+with tf.name_scope('inputs'):
     x = tf.placeholder(tf.float32, shape=[None, n_input, channels], name="x_input")
     y = tf.placeholder(tf.float32, shape=[None, n_classes], name="y_actual")
 
@@ -104,20 +105,20 @@ with tf.name_scope('dropout'):
 with tf.name_scope('weights'):
     weights = {
         # 5x5 conv, 1 input, 32 outputs
-        'wc1': tf.Variable(tf.random_normal([5, 5, channels, 64]), name="weights_conv1"), # 28
+        'wc1': tf.Variable(tf.random_normal([5, 5, channels, 64]), name="weights_conv1"), # 32
         # 5x5 conv, 32 inputs, 64 outputs
-        'wc2': tf.Variable(tf.random_normal([5, 5, 32, 64]), name="weights_conv2"), # 14
-        # fully connected, 7*7*64 inputs, 1024 outputs
-        'wd1': tf.Variable(tf.random_normal([7*7*64, 384]), name="weights_fc1"), # 7
-        # fully connected, 7*7*64 inputs, 1024 outputs
-        'wd2': tf.Variable(tf.random_normal([384, 192]), name="weights_fc2"), # 7
-        # 1024 inputs, 10 outputs (class prediction)
+        'wc2': tf.Variable(tf.random_normal([5, 5, 64, 64]), name="weights_conv2"), # 16
+        # fully connected, 8*8*64 inputs, 384 outputs
+        'wd1': tf.Variable(tf.random_normal([8*8*64, 384]), name="weights_fc1"), # 8
+        # fully connected, 384 inputs, 192 outputs
+        'wd2': tf.Variable(tf.random_normal([384, 192]), name="weights_fc2"), # 384
+        # 192 inputs, 10 outputs (class prediction)
         'out': tf.Variable(tf.random_normal([192, n_classes]), name="weights_output")
     }
 
 with tf.name_scope('biases'):
     biases = {
-        'bc1': tf.Variable(tf.constant(0.0, shape=[32]), name="bias_conv1"),
+        'bc1': tf.Variable(tf.constant(0.0, shape=[64]), name="bias_conv1"),
         'bc2': tf.Variable(tf.constant(0.1, shape=[64]), name="bias_conv2"),
         'bd1': tf.Variable(tf.constant(0.1, shape=[384]), name="bias_fc1"),
         'bd2': tf.Variable(tf.constant(0.1, shape=[192]), name="bias_fc2"),
@@ -212,8 +213,9 @@ with tf.Session() as sess:
     print (t_end - t_start) / 3600.0, " hours"
 
     # TESTING MODEL ACCURACY AGAINST TEST SET
-    test_per_img_ch_means = svhn_test.train.images.mean(axis=1)
-    test_inputs = svhn_test.train.images - test_per_img_ch_means[:, np.newaxis, :]
+    test_subset = svhn_test.train.images
+    test_per_img_ch_means = test_subset.mean(axis=1)
+    test_inputs = test_subset - test_per_img_ch_means[:, np.newaxis, :]
     test_labels = svhn_test.train.labels
     print "Accuracy:", sess.run(accuracy, feed_dict={x: test_inputs,
                                                      y: test_labels,
