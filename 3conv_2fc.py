@@ -199,10 +199,10 @@ def run():
   with tf.name_scope('conv3_flatten'):
     conv_reshaped = tf.reshape(conv3, [-1, flat_dimension(conv3)])
 
-  fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv3), output_dim=512, decay=init_decay)
-  dropped1 = tf.nn.dropout(fc1, keep_prob)
+  fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv3), output_dim=1024, decay=init_decay)
+  #dropped1 = tf.nn.dropout(fc1, keep_prob)
 
-  fc2 = nn_layer(layer_name='fc2', input_tensor=dropped1, input_dim=512, output_dim=256, decay=init_decay)
+  fc2 = nn_layer(layer_name='fc2', input_tensor=fc1, input_dim=1024, output_dim=256, decay=init_decay)
   dropped2 = tf.nn.dropout(fc2, keep_prob)
 
   # Do not apply softmax activation yet! use the identity
@@ -319,7 +319,7 @@ def run():
 
 learning_rate = 0.001 # Slightly higher since we are using batch norm
 training_epochs = 5 # Typically overfits around 2.5 epochs
-train_keep_prob = 0.98 # Low dropout, in addition to weight decay
+train_keep_prob = 0.95 # Low dropout, in addition to weight decay
 
 # Train batch size
 batch_size = 100 # Better at 128 or 256
@@ -327,10 +327,10 @@ total_batches = int(svhn_train.num_examples / batch_size) # Train on all of the 
 
 # Test frequency / size
 test_every = 100 # Record test accuracy every 500 batches (32*500 examples) -- ideally every 100
-test_batch_size = int(0.25*svhn_test.num_examples) # Test on 10% of the data -- ideally 50% or more
+test_batch_size = int(0.2*svhn_test.num_examples) # Test on 10% of the data -- ideally 50% or more
 
 # Whether to test the full accuracy at the end
 full_at_end = True # test on a larger portion at the end (see feed dict)
-final_test_batch = int(0.5*svhn_test.num_examples) # the percentage of data to test on at the end
+final_test_batch = int(0.4*svhn_test.num_examples) # the percentage of data to test on at the end
 
 run()
