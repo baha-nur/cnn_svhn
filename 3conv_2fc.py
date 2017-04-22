@@ -267,7 +267,7 @@ def run():
 
 
   # Might be needed for batch norm
-  extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+  # extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
   tf.global_variables_initializer().run()
 
 
@@ -285,11 +285,11 @@ def run():
         print('Test accuracy at epoch %s - batch %s: %s' % (epoch, batch_num, acc))
         # Now proceed to train and produce corresponding training summary too
 
-        summary, _, _ = sess.run([merged, train_step, extra_update_ops], feed_dict=feed_dict(mode='Train_no_drop'))
+        summary, _ = sess.run([merged, train_step], feed_dict=feed_dict(mode='Train_no_drop'))
         train_writer.add_summary(summary, epoch * total_batches + batch_num)
 
       else:
-        sess.run([train_step, extra_update_ops], feed_dict=feed_dict(mode='Train'))
+        sess.run([train_step], feed_dict=feed_dict(mode='Train'))
 
 
   print "\nOptimization Finished!\n"
