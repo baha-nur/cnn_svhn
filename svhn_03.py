@@ -188,11 +188,11 @@ def run():
                       batch_norm=True, training=training)
 
   conv2 = convlayer(layer_name='conv2', input_tensor=conv1, receptive_field=5,
-                    channels_in=128, channels_out=128, pool=True, pool_size=2, pool_stride=2,
+                    channels_in=64, channels_out=128, pool=True, pool_size=2, pool_stride=2,
                     batch_norm=True, training=training)
 
   conv3 = convlayer(layer_name='conv3', input_tensor=conv2, receptive_field=5,
-                    channels_in=256, channels_out=256, pool=True, pool_size=2, pool_stride=2,
+                    channels_in=128, channels_out=256, pool=True, pool_size=2, pool_stride=2,
                     batch_norm=True, training=training)
 
 
