@@ -76,15 +76,15 @@ def convlayer(layer_name, input_tensor, receptive_field, channels_in, channels_o
     # This Variable will hold the state of the weights for the layer
     with tf.name_scope('weights'):
       weights = weight_variable([receptive_field, receptive_field, channels_in, channels_out])
-      # variable_summaries(weights)
+      variable_summaries(weights)
 
-      # # Optional visualization of first layer
-      # if layer_name == 'conv1':
-      #   weight_min = tf.reduce_min(weights)
-      #   weight_max = tf.reduce_max(weights)
-      #   weights_0_to_1 = (weights - weight_min) / (weight_max - weight_min)
-      #   weights_transposed = tf.transpose(weights_0_to_1, [3, 0, 1, 2])
-      #   tf.summary.image('filter', weights_transposed, 10) # Just follow 10 feature maps
+      # Optional visualization of first layer
+      if layer_name == 'conv1':
+        weight_min = tf.reduce_min(weights)
+        weight_max = tf.reduce_max(weights)
+        weights_0_to_1 = (weights - weight_min) / (weight_max - weight_min)
+        weights_transposed = tf.transpose(weights_0_to_1, [3, 0, 1, 2])
+        tf.summary.image('filter', weights_transposed, 10) # Just follow 10 feature maps
 
       if decay > 0:
           weight_decay = tf.multiply(tf.nn.l2_loss(weights), decay, name='weight_decay')
@@ -98,7 +98,7 @@ def convlayer(layer_name, input_tensor, receptive_field, channels_in, channels_o
       preactivate = tf.nn.conv2d(input_tensor, weights,
                                  strides=[1, stride, stride, 1],
                                  padding=padding) + biases
-      # tf.summary.histogram('pre_activations', preactivate)
+      tf.summary.histogram('pre_activations', preactivate)
 
     if batch_norm:
       with tf.name_scope('batchnorm'):
@@ -106,13 +106,13 @@ def convlayer(layer_name, input_tensor, receptive_field, channels_in, channels_o
       activations = act(normed, name='activation')
     else:
       activations = act(preactivate, name='activation')
-    # tf.summary.histogram('activations', activations)
+    tf.summary.histogram('activations', activations)
 
     if pool:
       max_pool = pooler(activations, ksize=[1, pool_size, pool_size, 1],
                       strides=[1, pool_stride, pool_stride, 1],
                       padding=pool_padding)
-      # tf.summary.histogram('pools', max_pool)
+      tf.summary.histogram('pools', max_pool)
       return max_pool
     else:
       return activations
@@ -140,9 +140,9 @@ def nn_layer(layer_name, input_tensor, input_dim, output_dim, act=tf.nn.relu, de
       # variable_summaries(biases)
     with tf.name_scope('Wx_plus_b'):
       preactivate = tf.matmul(input_tensor, weights) + biases
-      # tf.summary.histogram('pre_activations', preactivate)
+      tf.summary.histogram('pre_activations', preactivate)
     activations = act(preactivate, name='activation')
-    # tf.summary.histogram('activations', activations)
+    tf.summary.histogram('activations', activations)
     return activations
 
 
@@ -267,7 +267,7 @@ def run():
 
 
   # Might be needed for batch norm
-  # extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+  extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
   tf.global_variables_initializer().run()
 
 
@@ -285,11 +285,11 @@ def run():
         print('Test accuracy at epoch %s - batch %s: %s' % (epoch, batch_num, acc))
         # Now proceed to train and produce corresponding training summary too
 
-        summary, _ = sess.run([merged, train_step], feed_dict=feed_dict(mode='Train_no_drop'))
+        summary, _, _ = sess.run([merged, train_step, extra_update_ops], feed_dict=feed_dict(mode='Train_no_drop'))
         train_writer.add_summary(summary, epoch * total_batches + batch_num)
 
       else:
-        sess.run([train_step], feed_dict=feed_dict(mode='Train'))
+        sess.run([train_step, extra_update_ops], feed_dict=feed_dict(mode='Train'))
 
 
   print "\nOptimization Finished!\n"
