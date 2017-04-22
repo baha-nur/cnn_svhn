@@ -204,9 +204,9 @@ def run():
     conv_reshaped = tf.reshape(conv4, [-1, flat_dimension(conv4)])
 
   fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv4), output_dim=4096, decay=init_decay)
-  #dropped1 = tf.nn.dropout(fc1, keep_prob)
+  dropped1 = tf.nn.dropout(fc1, keep_prob)
 
-  fc2 = nn_layer(layer_name='fc2', input_tensor=fc1, input_dim=4096, output_dim=256, decay=init_decay)
+  fc2 = nn_layer(layer_name='fc2', input_tensor=dropped1, input_dim=4096, output_dim=256, decay=init_decay)
   dropped2 = tf.nn.dropout(fc2, keep_prob)
 
   # Do not apply softmax activation yet! use the identity
