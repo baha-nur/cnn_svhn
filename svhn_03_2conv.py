@@ -319,7 +319,7 @@ def run():
 
 learning_rate = 0.001 # Slightly higher since we are using batch norm
 training_epochs = 5 # Typically overfits around 2.5 epochs
-train_keep_prob = 0.90 # Low dropout, in addition to weight decay
+train_keep_prob = 0.95 # Low dropout, in addition to weight decay
 
 # Train batch size
 batch_size = 256 # Better at 128 or 256
@@ -331,6 +331,6 @@ test_batch_size = int(0.25*svhn_test.num_examples) # Test on 10% of the data -- 
 
 # Whether to test the full accuracy at the end
 full_at_end = True # test on a larger portion at the end (see feed dict)
-final_test_batch = int(0.5*svhn_test.num_examples) # the percentage of data to test on at the end
+final_test_batch = int(0.25*svhn_test.num_examples) # the percentage of data to test on at the end
 
 run()
