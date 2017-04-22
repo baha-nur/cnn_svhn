@@ -200,9 +200,9 @@ def run():
     conv_reshaped = tf.reshape(conv3, [-1, flat_dimension(conv3)])
 
   fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv3), output_dim=4096, decay=init_decay)
-  dropped1 = tf.nn.dropout(fc1, keep_prob)
+  #dropped1 = tf.nn.dropout(fc1, keep_prob)
 
-  fc2 = nn_layer(layer_name='fc2', input_tensor=dropped1, input_dim=4096, output_dim=1024, decay=init_decay)
+  fc2 = nn_layer(layer_name='fc2', input_tensor=fc1, input_dim=4096, output_dim=1024, decay=init_decay)
   dropped2 = tf.nn.dropout(fc2, keep_prob)
 
   # Do not apply softmax activation yet! use the identity
@@ -318,11 +318,11 @@ def run():
 ##########################################
 
 learning_rate = 0.001 # Slightly higher since we are using batch norm
-training_epochs = 5 # Typically overfits around 2.5 epochs
-train_keep_prob = 0.9 # Low dropout, in addition to weight decay
+training_epochs = 7 # Typically overfits around 2.5 epochs
+train_keep_prob = 0.98 # Low dropout, in addition to weight decay
 
 # Train batch size
-batch_size = 500 # Better at 128 or 256
+batch_size = 256 # Better at 128 or 256
 total_batches = int(svhn_train.num_examples / batch_size) # Train on all of the data
 
 # Test frequency / size
