@@ -202,11 +202,11 @@ def run():
   fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv3), output_dim=4096, decay=init_decay)
   #dropped1 = tf.nn.dropout(fc1, keep_prob)
 
-  fc2 = nn_layer(layer_name='fc2', input_tensor=fc1, input_dim=4096, output_dim=1024, decay=init_decay)
+  fc2 = nn_layer(layer_name='fc2', input_tensor=fc1, input_dim=4096, output_dim=256, decay=init_decay)
   dropped2 = tf.nn.dropout(fc2, keep_prob)
 
   # Do not apply softmax activation yet! use the identity
-  y = nn_layer(layer_name='output', input_tensor=dropped2, input_dim=1024, output_dim=n_classes, act=tf.identity)
+  y = nn_layer(layer_name='output', input_tensor=dropped2, input_dim=256, output_dim=n_classes, act=tf.identity)
 
 
 
@@ -319,7 +319,7 @@ def run():
 
 learning_rate = 0.001 # Slightly higher since we are using batch norm
 training_epochs = 7 # Typically overfits around 2.5 epochs
-train_keep_prob = 0.98 # Low dropout, in addition to weight decay
+train_keep_prob = 0.9 # Low dropout, in addition to weight decay
 
 # Train batch size
 batch_size = 256 # Better at 128 or 256
