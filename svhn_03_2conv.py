@@ -197,7 +197,7 @@ def run():
 
 
   with tf.name_scope('conv3_flatten'):
-    conv_reshaped = tf.reshape(conv3, [-1, flat_dimension(conv2)])
+    conv_reshaped = tf.reshape(conv3, [-1, flat_dimension(conv3)])
 
   fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv3), output_dim=4096, decay=init_decay)
   #dropped1 = tf.nn.dropout(fc1, keep_prob)
