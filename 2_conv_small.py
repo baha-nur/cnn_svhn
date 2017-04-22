@@ -177,11 +177,11 @@ def run():
     tf.summary.image('input', input_reshaped, 5) # Save 5 images to ensure reshape is working
 
   conv1 = convlayer(layer_name='conv1', input_tensor=input_reshaped, receptive_field=5,
-                      channels_in=input_channels, channels_out=64, pool=False, pool_size=3, pool_stride=2,
+                      channels_in=input_channels, channels_out=64, pool=True, pool_size=3, pool_stride=2,
                       batch_norm=True, training=training)
 
   conv2 = convlayer(layer_name='conv2', input_tensor=conv1, receptive_field=5,
-                    channels_in=64, channels_out=128, pool=False, pool_size=3, pool_stride=2,
+                    channels_in=64, channels_out=128, pool=True, pool_size=3, pool_stride=2,
                     batch_norm=True, training=training)
 
 
