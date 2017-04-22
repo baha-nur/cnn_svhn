@@ -185,10 +185,12 @@ def run():
                     batch_norm=True, training=training)
 
 
-  with tf.name_scope('conv2_flatten'):
-    conv_reshaped = tf.reshape(conv3, [-1, flat_dimension(conv2)])
+  last_conv_layer = conv2
 
-  fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(conv2), output_dim=384, decay=init_decay)
+  with tf.name_scope('conv2_flatten'):
+    conv_reshaped = tf.reshape(last_conv_layer, [-1, flat_dimension(last_conv_layer)])
+
+  fc1 = nn_layer(layer_name='fc1', input_tensor=conv_reshaped, input_dim=flat_dimension(last_conv_layer), output_dim=384, decay=init_decay)
   #dropped1 = tf.nn.dropout(fc1, keep_prob)
 
   fc2 = nn_layer(layer_name='fc2', input_tensor=fc1, input_dim=384, output_dim=192, decay=init_decay)
