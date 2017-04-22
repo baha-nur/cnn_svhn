@@ -197,7 +197,7 @@ def run():
   #dropped2 = tf.nn.dropout(fc2, keep_prob)
 
   # Do not apply softmax activation yet! use the identity
-  y = nn_layer(layer_name='output', input_tensor=f2, input_dim=192, output_dim=n_classes, act=tf.identity)
+  y = nn_layer(layer_name='output', input_tensor=fc2, input_dim=192, output_dim=n_classes, act=tf.identity)
 
 
 
