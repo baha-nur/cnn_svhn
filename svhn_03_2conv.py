@@ -195,7 +195,7 @@ def run():
                     channels_in=128, channels_out=256, pool=True, pool_size=2, pool_stride=2,
                     batch_norm=True, training=training)
 
-  conv4 = convlayer(layer_name='conv4', input_tensor=conv2, receptive_field=5,
+  conv4 = convlayer(layer_name='conv4', input_tensor=conv3, receptive_field=5,
                     channels_in=256, channels_out=512, pool=True, pool_size=2, pool_stride=2,
                     batch_norm=True, training=training)
 
