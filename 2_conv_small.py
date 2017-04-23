@@ -177,11 +177,11 @@ def run():
     tf.summary.image('input', input_reshaped, 5) # Save 5 images to ensure reshape is working
 
   conv1 = convlayer(layer_name='conv1', input_tensor=input_reshaped, receptive_field=5,
-                      channels_in=input_channels, channels_out=64, pool=False, pool_size=3, pool_stride=2,
+                      channels_in=input_channels, channels_out=64, pool=True, pool_size=3, pool_stride=2,
                       batch_norm=True, training=training)
 
   conv2 = convlayer(layer_name='conv2', input_tensor=conv1, receptive_field=5,
-                    channels_in=64, channels_out=128, pool=False, pool_size=3, pool_stride=2,
+                    channels_in=64, channels_out=128, pool=True, pool_size=3, pool_stride=2,
                     batch_norm=True, training=training)
 
 
@@ -313,15 +313,15 @@ training_epochs = 7 # Typically overfits around 2.5 epochs
 train_keep_prob = 0.9 # Low dropout, in addition to weight decay
 
 # Train batch size
-batch_size = 64 # Better at 128 or 256
+batch_size = 256 # Better at 128 or 256
 total_batches = int(svhn_train.num_examples / batch_size) # Train on all of the data
 
 # Test frequency / size
 test_every = 100 # Record test accuracy every 500 batches (32*500 examples) -- ideally every 100
-test_batch_size = int(0.1*svhn_test.num_examples) # Test on 10% of the data -- ideally 50% or more
+test_batch_size = int(0.2*svhn_test.num_examples) # Test on 10% of the data -- ideally 50% or more
 
 # Whether to test the full accuracy at the end
 full_at_end = True # test on a larger portion at the end (see feed dict)
-final_test_batch = int(0.2*svhn_test.num_examples) # the percentage of data to test on at the end
+final_test_batch = int(0.33*svhn_test.num_examples) # the percentage of data to test on at the end
 
 run()
